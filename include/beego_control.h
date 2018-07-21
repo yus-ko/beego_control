@@ -1,126 +1,98 @@
-#ifndef INCLUDE_IMAGE_CLASS
-#define INCLUDE_IMAGE_CLASS
+#ifndef INCLUDE_BEEGO_CONTROL_CLASS
+#define INCLUDE_BEEGO_CONTROL_CLASS
 
 #include"ros/ros.h"
 #include <ros/callback_queue.h>
-//画像取得用
+//for image processing on ros
 #include<image_transport/image_transport.h>
 #include<cv_bridge/cv_bridge.h>
-//opencv
+#include<sensor_msgs/image_encodings.h>
+//opencv library
 #include<opencv2/highgui/highgui.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
-#include<sensor_msgs/image_encodings.h>
 
 
 class beego_control{
 	private:
-		cv::Mat cur_image;
-		cv::Mat pre_image;
+		//oreder message
+		geometry_msgs::Twist order_msg;
+		//value of encorder
+		int fet;//temperature of FET
+		int mdbv;//Motor Driver Battery Voltage
+		int vol;//Current Voltage
+		int spd;//speed
+		int rpc;//RPC(?)
+		//ros 
+		ros::NodeHandle nh_pub,nh_sub;
+		ros::Publisher pub;
+		ros::Publisher pub_fet;
+		ros::Publisher pub_mdbv;
+		ros::Publisher pub_vol;
+		ros::Publisher pub_rpc;
+		ros::Subscriber sub;
+		ros::CallbackQueue queue;
+		
+		
 	public:
 
 		beego_control();
-		bool is_cur_image(void);
-		bool is_pre_image(void);
-		void subscribe_image(void);
-		void set_cur_image(void);
-		void set_image(void);
-//		void set_debug_image(cv::Mat& temp_image);
-		cv::Mat& get_cur_image_by_ref(void);
-		cv::Mat& get_pre_image_by_ref(void);
-		virtual ~image_class();
-		virtual void publish_debug_image(cv::Mat& temp_image);
-		virtual void define_variable(void);
-
-	protected:
-		bool PROCESS_ONCE;
-		ros::NodeHandle nh_pub,nh_sub;
-		image_transport::Publisher pub;
-		ros::Subscriber sub;
-		image_transport::ImageTransport it;
-		ros::CallbackQueue queue;
-		cv_bridge::CvImagePtr cvbridge_image;
-
-		void set_pre_image(void);
-		virtual void image_callback(const sensor_msgs::ImageConstPtr& msg);
+		~beego_control();
+		//subscribe a order 
+		void sub_order_vel(void);
+		void order_vel_callback(const geometry_msgs::TwistConstPtr& msg);
+		//set the order
+		//void set_ordet_vel(void);
+		//set all encorder values
+		void set_encorders(void);
+		//set each encorder values
+		void set_fet(void);
+		void set_mdbv(void);
+		void set_vod(void);
+		void set_spd(void);
+		void set_rpc(void);
+		//publish encorder values
+		void publish_encorders(void);
+		
 };
 
 beego_control::beego_control()
-	:it(nh_pub),PROCESS_ONCE(true)
+	:fet(-1),mdbv(-1),vol(-1),spd(-1),rpc(-1)
 {
-	std::cout<<"in image_class constracter\n";
-//		  cur_image.reserve();
-//		  pre_image.reserve();
-//		  debug_image.reserve();
+	std::cout<<"in beego_control constracter\n";
+	//case 1 : publish each value
+	pub_fet=nh_pub.advertise<std_msgs::int32>("temperature_fet",1);
+	pub_mdbv=nh_pub.advertise<std_msgs::int32>("moter_driver_battery",1);
+	pub_vol=nh_pub.advertise<std_msgs::int32>("current voltage",1);
+	pub_rpc=nh_pub.advertise<std_msgs::int32>("rcp",1);
+	//case 2 : publish a value included each value
+	//pub=nh_pub.advertise<beego_control::encorder>("encorder",1);
+	//------------------------------------------------------
+	
+	nh_sub.setCallbackQueue(&queue);
+	sub=nh_sub.subscribe("/cmd_vel",1,&beego_control::order_vel_callback,this);
 
 }
-bool beego_control::is_cur_image(void){
-	return (!cur_image.empty());
-}
-bool beego_control::is_pre_image(void){
-	return (!pre_image.empty());
-}
-void beego_control::subscribe_image(void){
+void beego_control::sub_order_vel(void)
+{
 	queue.callOne(ros::WallDuration(1));
 }
-void beego_control::set_cur_image(void){
-	if(!PROCESS_ONCE)
-		cur_image=cvbridge_image->image.clone();
+void order_vel_callback(const geometry_msgs::TwistCon::stPtr& msg)
+{
+	order_msg=msg;
 }
-void beego_control::set_image(void){
-	subscribe_image();
-	if(is_cur_image()){
-		set_pre_image();
-	 }
-	set_cur_image();
-}
-
-cv::Mat& beego_control::get_cur_image_by_ref(void){
-	return cur_image;
-}
-cv::Mat& beego_control::get_pre_image_by_ref(void){
-	return pre_image;
-}
-
-
 beego_control::~beego_control()
 {
-	cur_image.release();
-	pre_image.release();
 }
+//set encorder values
+void beego_control::set_encorders(void);
+void beego_control::set_fet(void);
+void beego_control::set_mdbv(void);
+void beego_control::set_vod(void);
+void beego_control::set_spd(void);
+void beego_control::set_rpc(void);
 
-void beego_control::set_pre_image(void){
-	pre_image=cur_image.clone();
-}
 
-
-void beego_control::define_variable(void){
-	pub=it.advertise("left_image",1);
-	nh_sub.setCallbackQueue(&queue);
-	sub=nh_sub.subscribe("/zed/left/image_rect_color",1,&image_class::image_callback,this);
-}
-
-void beego_control::image_callback(const sensor_msgs::ImageConstPtr& msg)
-{
-
-	try{
-		std::cout<<"image_callback \n";
-		cvbridge_image=cv_bridge::toCvCopy(msg,sensor_msgs::image_encodings::BGR8);
-		PROCESS_ONCE=false;
-	}
-	catch(cv_bridge::Exception& e) {
-		std::cout<<"image_callback Error \n";
-		ROS_ERROR("Could not convert from '%s' to 'bgr8'.",
-		msg->encoding.c_str());
-		return ;
-	}
-}
-
-void beego_control::publish_debug_image(cv::Mat& temp_image){
-	cv_bridge::CvImagePtr publish_cvimage(new cv_bridge::CvImage);
-	publish_cvimage->encoding=sensor_msgs::image_encodings::BGR8;
-	publish_cvimage->image=temp_image.clone();
-	pub.publish(publish_cvimage->toImageMsg());
-
-}
+//publish encorder values
+void beego_control::publish_encorders(void);
 
 #endif
