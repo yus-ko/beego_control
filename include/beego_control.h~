@@ -87,7 +87,7 @@ beego_control::~beego_control()
 void beego_control::set_encorders(void);
 void beego_control::set_fet(void);
 void beego_control::set_mdbv(void);
-void beego_control::set_vol(void);
+void beego_control::set_vod(void);
 void beego_control::set_spd(void);
 void beego_control::set_rpc(void);
 
