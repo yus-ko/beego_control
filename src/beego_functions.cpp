@@ -185,7 +185,6 @@ int beego_control::MDR8GetStatusLong(HANDLE hComm, int drv, int motor, int *pst,
   sprintf(cmdbuf, "DSR %d %d\r\n", drv, motor);
   memset(rcvbuf, 0x00, sizeof(rcvbuf));
   ret = MDR8SendRead(hComm, cmdbuf, strlen(cmdbuf), rcvbuf, sizeof(rcvbuf), MDR8_TIMEOUT);
-  rcvdata=std::string(rcvbuf);
   if(ret > 0){
 	sscanf(rcvbuf, "DS %d %d %d %d %d %d %d %d %d %d", &ret_drv, &ret_mt, pst, pfet, pbt,  &ret_cur, pvol, pspd, prpc, &ret_tm);
   }
@@ -240,5 +239,23 @@ long beego_control::getMsecTime(struct timeval *pold, struct timeval *pnew)
 	return mtime;
 }
 
+//get acc jyro data
+int beego_control::get_acc_gyro(HANDLE hComm, int drv, int *acc_x, int *acc_y, int *acc_z, int *gyro_x, int *gyro_y, int *gyro_z)
+{
+  char	cmdbuf[MDR8_CMD_SIZE];
+  char	rcvbuf[MDR8_BUFF_SIZE];
+  bool	ret = false;
+  int	ret_drv, ret_tm, ret_cur;
+  
+  sprintf(cmdbuf, "MSR %d\r\n", drv);
+  memset(rcvbuf, 0x00, sizeof(rcvbuf));
+  ret = MDR8SendRead(hComm, cmdbuf, strlen(cmdbuf), rcvbuf, sizeof(rcvbuf), MDR8_TIMEOUT);
+  rcvdata=std::string(rcvbuf);
+  if(ret > 0){
+	sscanf(rcvbuf, "MS %d %d %d %d %d %d %d %d", &ret_drv, acc_x, acc_y, acc_z, gyro_x,  gyro_y, gyro_z, &ret_tm);
+	//sscanf(rcvbuf, "MSS %d %d %d %d %d %d %d", &ret_drv, acc_x, acc_y, acc_z, gyro_x,  gyro_y, gyro_z);
+  }
 
+  return ret;
+}
 

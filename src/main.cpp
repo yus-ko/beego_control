@@ -15,6 +15,7 @@ int main(int argc,char **argv){
 		bc.convert_ordger_vel();
 		bc.control_robot();
 		bc.set_encorders();
+		bc.set_acc_gyro();
 		bc.publish_encorders();
 	}
 	

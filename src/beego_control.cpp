@@ -11,6 +11,8 @@ beego_control::beego_control()
 	pub_vol=nh_pub.advertise<std_msgs::Int32>("current_voltage",1);
 	pub_spd=nh_pub.advertise<std_msgs::Int32>("speed",1);
 	pub_rpc=nh_pub.advertise<std_msgs::Int32>("rcp",1);
+	pub_acc=nh_pub.advertise<geometry_msgs::Point32>("acc",1);
+	pub_gyro=nh_pub.advertise<geometry_msgs::Point32>("gyro",1);
 	//case 2 : publish a value included each value
 	//pub=nh_pub.advertise<beego_control::encorder>("encorder",1);
 	//------------------------------------------------------
@@ -27,7 +29,7 @@ beego_control::beego_control()
 }
 void beego_control::sub_order_vel(void)
 {
-	queue.callOne(ros::WallDuration(1));
+	queue.callOne(ros::WallDuration(0.01));
 }
 void beego_control::order_vel_callback(const geometry_msgs::Twist::ConstPtr& msg)
 {
@@ -176,6 +178,44 @@ void beego_control::set_rpc(int& prpc)
 {
 	rpc=prpc;
 }
+//set sensor value
+void beego_control::set_acc_gyro(void)
+{
+	int acc_x=0, acc_y=0, acc_z=0, gyro_x=0, gyro_y=0, gyro_z=0;
+	
+	get_acc_gyro(hCommMotor, MOTOR_DRIVER_NUMBER, &acc_x, &acc_y, &acc_z, &gyro_x, &gyro_y, &gyro_z);
+	//set encorders
+	set_acc_x(acc_x);
+	set_acc_y(acc_y);
+	set_acc_z(acc_z);
+	set_gyro_x(gyro_x);
+	set_gyro_y(gyro_y);
+	set_gyro_z(gyro_z);
+}
+void beego_control::set_acc_x(int& pacc_x)
+{
+	acc_x=pacc_x;
+}
+void beego_control::set_acc_y(int& pacc_y)
+{
+	acc_y=pacc_y;
+}
+void beego_control::set_acc_z(int& pacc_z)
+{
+	acc_z=pacc_z;
+}
+void beego_control::set_gyro_x(int& pgyro_x)
+{
+	gyro_x=pgyro_x;
+}
+void beego_control::set_gyro_y(int& pgyro_y)
+{
+	gyro_y=pgyro_y;
+}
+void beego_control::set_gyro_z(int& pgyro_z)
+{
+	gyro_z=pgyro_z;
+}
 
 
 //publish encorder values
@@ -195,6 +235,18 @@ void beego_control::publish_encorders(void)
 	msg_vol.data=vol;
 	msg_spd.data=spd;
 	msg_rpc.data=rpc;
+	//value of sensor(ros msgs)
+	geometry_msgs::Point32 msg_acc;
+	geometry_msgs::Point32 msg_gyro;
+	//set messages
+	msg_acc.x=acc_x;
+	msg_acc.y=acc_y;
+	msg_acc.z=acc_z;
+	
+	msg_gyro.x=gyro_x;
+	msg_gyro.y=gyro_y;
+	msg_gyro.z=gyro_z;
+	std::cout<<"gyro "<<atan(acc_y/std::sqrt(acc_x*acc_x+acc_z*acc_z))*180/M_PI<<" "<<atan(acc_x/std::sqrt(acc_y*acc_y+acc_z*acc_z))*180/M_PI<<"\n";
 	//received data
 	std::cout<<"received data:"<<rcvdata<<"\n";
 	//
@@ -213,5 +265,13 @@ void beego_control::publish_encorders(void)
 	std::cout<<"msg_rpc:"<<msg_rpc;//<<"\n";
 	pub_rpc.publish(msg_rpc);
 	
+	std::cout<<"msg_acc:"<<msg_acc;//<<"\n";
+	pub_acc.publish(msg_acc);
+	std::cout<<"msg_gyro:"<<msg_gyro;//<<"\n";
+	pub_gyro.publish(msg_gyro);
+	
 }
+
+
+
 

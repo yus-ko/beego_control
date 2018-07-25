@@ -9,6 +9,7 @@
 #include<sensor_msgs/image_encodings.h>
 //geometry msg
 #include<geometry_msgs/Twist.h>
+#include<geometry_msgs/Point32.h>
 //std_msgs
 #include"std_msgs/Int32.h"
 #include"std_msgs/Float32.h"
@@ -40,6 +41,13 @@ class beego_control{
 		int vol;//Current Voltage
 		int spd;//speed
 		int rpc;//RPC(?)
+		//value of sensor 
+		int acc_x;
+		int acc_y;
+		int acc_z;
+		int gyro_x;
+		int gyro_y;
+		int gyro_z;
 		//ros 
 		ros::NodeHandle nh_pub,nh_sub;
 		ros::Publisher pub;
@@ -49,6 +57,8 @@ class beego_control{
 		ros::Publisher pub_vol;
 		ros::Publisher pub_spd;
 		ros::Publisher pub_rpc;
+		ros::Publisher pub_acc;
+		ros::Publisher pub_gyro;
 		ros::Subscriber sub;
 		ros::CallbackQueue queue;
 		//beego parameters
@@ -88,7 +98,18 @@ class beego_control{
 		void set_rpc(int& pspc);
 		//publish encorder values
 		void publish_encorders(void);
-		
+		//set sensor value
+		void set_acc_gyro(void);
+		//set each sensor values
+		void set_acc_x(int& pacc_x);
+		void set_acc_y(int& pacc_y);
+		void set_acc_z(int& pacc_z);
+		void set_gyro_x(int& pgyro_x);
+		void set_gyro_y(int& pgyro_y);
+		void set_gyro_z(int& pgyro_z);
+
+		//get acc gyro
+		int get_acc_gyro(HANDLE hComm, int drv, int *acc_x, int *acc_y, int *acc_z, int *gyro_x, int *gyro_y, int *gyro_z);
 		//beego functions
 		int MDR8SendRead(HANDLE hComm, char *psend, int sendlen, char *prcv, int rcvlen, int timeout);
 		bool MDR8SendCommand(HANDLE hComm, char *psend, int sendlen, char *prcv, int rcvlen, int timeout);
