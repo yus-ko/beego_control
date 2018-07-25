@@ -30,10 +30,11 @@
 #define BEEGO_TIRE_DIAMETER				82			// Beego Tire Diameter 82mm
 #define BEEGO_TIRE_DISTANCE				290			// Beego Tire Distance 290mm
 
+/*
 // Variables
 bool gbTorque = false;								// Motor Torque Flag
 bool gbTerminate = false;							// loop flag
 //
 char	sPort[MAX_PORT_NAME];					// Port Name
-	
+*/	
 

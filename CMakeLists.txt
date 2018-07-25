@@ -201,9 +201,13 @@ include_directories(
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
-add_executable(test_node src/test.cpp)
+add_executable(beego_control src/main.cpp src/beego_control.cpp src/beego_functions.cpp)
 find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros-robot/catkin_ws/src/beego_control/lib)
-target_link_libraries(test_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${BEEGO_LIBRARIES})
+target_link_libraries(beego_control ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${BEEGO_LIBRARIES})
+
+#add_executable(test_node src/test.cpp)
+#find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros-robot/catkin_ws/src/beego_control/lib)
+#target_link_libraries(test_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${BEEGO_LIBRARIES})
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

@@ -3,7 +3,6 @@
 beego_control::beego_control()
 	:fet(-1),bt(-1),vol(-1),spd(-1),rpc(-1)
 {
-	//std::cout<<"beego_control():start\n";
 	std::cout<<"in beego_control constracter\n";
 	//case 1 : publish each value
 	pub_st=nh_pub.advertise<std_msgs::Int32>("st",1);
@@ -17,8 +16,14 @@ beego_control::beego_control()
 	//------------------------------------------------------
 	
 	nh_sub.setCallbackQueue(&queue);
-	sub=nh_sub.subscribe("/cmd_vel",1,&beego_control::order_vel_callback,this);
-	//std::cout<<"beego_control():end\n";
+	sub=nh_sub.subscribe("/beego/cmd_vel",1,&beego_control::order_vel_callback,this);
+	order_msg.linear.x=0;
+	order_msg.linear.y=0;
+	order_msg.linear.z=0;
+	order_msg.angular.x=0;
+	order_msg.angular.y=0;
+	order_msg.angular.z=0;
+	
 }
 void beego_control::sub_order_vel(void)
 {
@@ -97,22 +102,36 @@ int beego_control::setup_robot(void)
 
 	// main loop
 	gettimeofday(&times, NULL);							// Set Start time
+	//
+	printf("Torque ON\n");
+	MDR8MotorControl(hCommMotor, MDR8_MOTOR_CMT, MDR8_MOTOR_MODE_TORQUE_ON, MOTOR_DRIVER_NUMBER, MOTOR_RIGHT, 0);
+	MDR8MotorControl(hCommMotor, MDR8_MOTOR_CMT, MDR8_MOTOR_MODE_TORQUE_ON, MOTOR_DRIVER_NUMBER, MOTOR_LEFT, 0);
+
 }
 void beego_control::convert_ordger_vel(void)
 {
 	double v=order_msg.linear.x;//速度
 	double w=order_msg.angular.z;//角速度
+	double d=0.145;//車幅の半分の長さ
 	//計算式でv,wを車輪速度vel_l,vel_rに変換
-	//
+	double vl=v+d*w;//左速度
+	double vr=v-d*w;//右速度
 	//変換プロセス
-	//
-	//vel_l=?;//左車輪
-	//vel_r=?;//右車輪
+	double a=3.1416*0.082;
+	double b=26.85*45*60/16;
+	vel_l=vl*b/a;//左車輪
+	vel_r=vr*b/a;//右車輪
+	std::cout<<"vel_l,vel_r:"<<vel_l<<","<<vel_r<<"\n";
 }
 void beego_control::control_robot(void)
 {
 	//vel_l=?;//左車輪
 	//vel_r=?;//右車輪
+	MDR8MotorControl(hCommMotor, MDR8_MOTOR_CMB, MDR8_MOTOR_MODE_SPEED, MOTOR_DRIVER_NUMBER, MOTOR_RIGHT, -vel_r);
+	MDR8MotorControl(hCommMotor, MDR8_MOTOR_CMB, MDR8_MOTOR_MODE_SPEED, MOTOR_DRIVER_NUMBER, MOTOR_LEFT, vel_l);
+	MDR8BcpSend(hCommMotor);
+	
+	//gettimeofday(&times, NULL);
 	
 }
 //set encorder values
@@ -176,18 +195,22 @@ void beego_control::publish_encorders(void)
 	msg_vol.data=vol;
 	msg_spd.data=spd;
 	msg_rpc.data=rpc;
+	//received data
+	std::cout<<"received data:"<<rcvdata<<"\n";
+	//
+	std::cout<<"order_msg:"<<order_msg;//<<"\n";
 	//publish messagegs
-	std::cout<<"msg_st:"<<msg_st<<"\n";
+	std::cout<<"msg_st:"<<msg_st;//<<"\n";
 	pub_st.publish(msg_st);
-	std::cout<<"msg_fet:"<<msg_fet<<"\n";
+	std::cout<<"msg_fet:"<<msg_fet;//<<"\n";
 	pub_fet.publish(msg_fet);
-	std::cout<<"msg_bt:"<<msg_bt<<"\n";
+	std::cout<<"msg_bt:"<<msg_bt;//<<"\n";
 	pub_bt.publish(msg_bt);
-	std::cout<<"msg_vol:"<<msg_vol<<"\n";
+	std::cout<<"msg_vol:"<<msg_vol;//<<"\n";
 	pub_vol.publish(msg_vol);
-	std::cout<<"msg_spd:"<<msg_spd<<"\n";
+	std::cout<<"msg_spd:"<<msg_spd;//<<"\n";
 	pub_spd.publish(msg_spd);
-	std::cout<<"msg_rpc:"<<msg_rpc<<"\n";
+	std::cout<<"msg_rpc:"<<msg_rpc;//<<"\n";
 	pub_rpc.publish(msg_rpc);
 	
 }
