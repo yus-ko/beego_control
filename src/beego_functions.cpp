@@ -1,4 +1,7 @@
 #include<beego_control.h>
+
+//using namespace beego;
+
 // Functions
 
 //	MDR8SendRead(HANDLE hComm, char *psend, int sendlen, char *prcv, int rcvlen, int timeout)
@@ -13,7 +16,7 @@
 //	return bool					status
 //
 
-int beego_control::MDR8SendRead(HANDLE hComm, char *psend, int sendlen, char *prcv, int rcvlen, int timeout)
+int beego::control::MDR8SendRead(HANDLE hComm, char *psend, int sendlen, char *prcv, int rcvlen, int timeout)
 {
 	int ret = 0;
 
@@ -41,7 +44,7 @@ int beego_control::MDR8SendRead(HANDLE hComm, char *psend, int sendlen, char *pr
 //	int timeiout				Recieve Data Timeout
 //	return bool					status
 //
-bool beego_control::MDR8SendCommand(HANDLE hComm, char *psend, int sendlen, char *prcv, int rcvlen, int timeout)
+bool beego::control::MDR8SendCommand(HANDLE hComm, char *psend, int sendlen, char *prcv, int rcvlen, int timeout)
 {
 	int ret = 0;
 
@@ -68,7 +71,7 @@ bool beego_control::MDR8SendCommand(HANDLE hComm, char *psend, int sendlen, char
 //	int maxspeed				Max Motor Speed
 //	return bool					status
 //
-bool beego_control::MDR8MspSend(HANDLE hComm, int drv, int motor, int maxspeed)
+bool beego::control::MDR8MspSend(HANDLE hComm, int drv, int motor, int maxspeed)
 {
 	char	cmdbuf[MDR8_CMD_SIZE];
 	char	rcvbuf[MDR8_BUFF_SIZE];
@@ -93,7 +96,7 @@ bool beego_control::MDR8MspSend(HANDLE hComm, int drv, int motor, int maxspeed)
 //	int ctime					Max Motor Current Time
 //	return bool					status
 //
-bool beego_control::MDR8SocSend(HANDLE hComm, int drv, int motor, int current, int ctime)
+bool beego::control::MDR8SocSend(HANDLE hComm, int drv, int motor, int current, int ctime)
 {
 	char	cmdbuf[MDR8_CMD_SIZE];
 	char	rcvbuf[MDR8_BUFF_SIZE];
@@ -116,7 +119,7 @@ bool beego_control::MDR8SocSend(HANDLE hComm, int drv, int motor, int current, i
 //	int motor					Motor Number
 //	return bool					status
 //
-bool beego_control::MDR8RacSend(HANDLE hComm, int drv, int motor)
+bool beego::control::MDR8RacSend(HANDLE hComm, int drv, int motor)
 {
 	char	cmdbuf[MDR8_CMD_SIZE];
 	char	rcvbuf[MDR8_BUFF_SIZE];
@@ -142,7 +145,7 @@ bool beego_control::MDR8RacSend(HANDLE hComm, int drv, int motor)
 //	int val						Motor Speed or Position .. Other 0
 //	return bool					status
 //
-bool beego_control::MDR8MotorControl(HANDLE hComm, int mode, int ctrl, int drv, int motor, int val)
+bool beego::control::MDR8MotorControl(HANDLE hComm, int mode, int ctrl, int drv, int motor, int val)
 {
 	char	cmdbuf[MDR8_CMD_SIZE];
 	char	rcvbuf[MDR8_BUFF_SIZE];
@@ -175,7 +178,7 @@ bool beego_control::MDR8MotorControl(HANDLE hComm, int mode, int ctrl, int drv, 
 //	int *prpc					RPC
 //	return bool					status
 //
-int beego_control::MDR8GetStatusLong(HANDLE hComm, int drv, int motor, int *pst, int *pfet, int *pbt, int *pvol, int *pspd, int *prpc)
+int beego::control::MDR8GetStatusLong(HANDLE hComm, int drv, int motor, int *pst, int *pfet, int *pbt, int *pvol, int *pspd, int *prpc)
 {
   char	cmdbuf[MDR8_CMD_SIZE];
   char	rcvbuf[MDR8_BUFF_SIZE];
@@ -188,7 +191,8 @@ int beego_control::MDR8GetStatusLong(HANDLE hComm, int drv, int motor, int *pst,
   if(ret > 0){
 	sscanf(rcvbuf, "DS %d %d %d %d %d %d %d %d %d %d", &ret_drv, &ret_mt, pst, pfet, pbt,  &ret_cur, pvol, pspd, prpc, &ret_tm);
   }
-
+  //aa=ret_tm;
+  sample_time=ret_tm;
   return ret;
 }
 
@@ -199,7 +203,7 @@ int beego_control::MDR8GetStatusLong(HANDLE hComm, int drv, int motor, int *pst,
 //	HANDLE hComm				Serial Handle
 //	return bool					status
 //
-bool beego_control::MDR8BcpSend(HANDLE hComm)
+bool beego::control::MDR8BcpSend(HANDLE hComm)
 {
   char	cmdbuf[MDR8_CMD_SIZE];
   char	rcvbuf[MDR8_BUFF_SIZE];
@@ -217,7 +221,7 @@ bool beego_control::MDR8BcpSend(HANDLE hComm)
 //
 // set port name
 //
-void beego_control::setttyportname(int num)
+void beego::control::setttyportname(int num)
 {
 	if(num >= 0){
 		sprintf(sPort, "/dev/ttyUSB%d", num);
@@ -228,7 +232,7 @@ void beego_control::setttyportname(int num)
 //
 // get elapsed time(miri sec)
 //
-long beego_control::getMsecTime(struct timeval *pold, struct timeval *pnew)
+long beego::control::getMsecTime(struct timeval *pold, struct timeval *pnew)
 {
 	long	mtime, seconds, useconds;
 
@@ -240,7 +244,7 @@ long beego_control::getMsecTime(struct timeval *pold, struct timeval *pnew)
 }
 
 //get acc jyro data
-int beego_control::get_acc_gyro(HANDLE hComm, int drv, int *acc_x, int *acc_y, int *acc_z, int *gyro_x, int *gyro_y, int *gyro_z)
+int beego::control::get_acc_gyro(HANDLE hComm, int drv, int *acc_x, int *acc_y, int *acc_z, int *gyro_x, int *gyro_y, int *gyro_z)
 {
   char	cmdbuf[MDR8_CMD_SIZE];
   char	rcvbuf[MDR8_BUFF_SIZE];

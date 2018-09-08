@@ -3,7 +3,7 @@
 int main(int argc,char **argv){
 	ros::init(argc,argv,"beego_control");
 	
-	beego_control bc;
+	beego::control bc;
 	if(bc.setup_robot()==-1)
 	{
 		ROS_INFO("error");

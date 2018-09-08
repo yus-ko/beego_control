@@ -13,6 +13,8 @@
 //std_msgs
 #include"std_msgs/Int32.h"
 #include"std_msgs/Float32.h"
+#include<beego_control/vel.h>
+#include<beego_control/rpc.h>
 //opencv libraries
 #include<opencv2/highgui/highgui.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
@@ -21,7 +23,9 @@
 #include<setting_parameters.h>
 //#include<control_functions.h>
 
-class beego_control{
+namespace beego{
+
+class control{
 	private:
 		// Variables
 		bool gbTorque = false;								// Motor Torque Flag
@@ -39,15 +43,19 @@ class beego_control{
 		int fet;//temperature of FET
 		float bt;//Motor Driver Battery Voltage
 		int vol;//Current Voltage
-		int spd;//speed
-		int rpc;//RPC(?)
+		float leftspd;//speed
+		float rightspd;
+		int leftrpc;//RPC(?)
+		int rightrpc;
 		//value of sensor 
-		int acc_x;
-		int acc_y;
-		int acc_z;
-		int gyro_x;
-		int gyro_y;
-		int gyro_z;
+		float acc_x;
+		float acc_y;
+		float acc_z;
+		float gyro_x;
+		float gyro_y;
+		float gyro_z;
+		//sample time
+		int sample_time;
 		//ros 
 		ros::NodeHandle nh_pub,nh_sub;
 		ros::Publisher pub;
@@ -56,10 +64,13 @@ class beego_control{
 		ros::Publisher pub_bt;
 		ros::Publisher pub_vol;
 		ros::Publisher pub_spd;
+		ros::Publisher pub_spd_both;
 		ros::Publisher pub_rpc;
 		ros::Publisher pub_acc;
 		ros::Publisher pub_gyro;
+		ros::Publisher pub_smp_t;
 		ros::Subscriber sub;
+		
 		ros::CallbackQueue queue;
 		//beego parameters
 		//
@@ -76,8 +87,8 @@ class beego_control{
 		std::string rcvdata;
 	public:
 
-		beego_control();
-		~beego_control();
+		control();
+		~control();
 		//subscribe a order 
 		void sub_order_vel(void);
 		void order_vel_callback(const geometry_msgs::Twist::ConstPtr& msg);
@@ -94,8 +105,10 @@ class beego_control{
 		void set_fet(int& pfet);
 		void set_bt(float pbt);
 		void set_vol(int& pvol);
-		void set_spd(int& pspd);
-		void set_rpc(int& pspc);
+		void set_leftspd(int& pspd);
+		void set_leftrpc(int& pspc);
+		void set_rightspd(int& pspd);
+		void set_rightrpc(int& pspc);
 		//publish encorder values
 		void publish_encorders(void);
 		//set sensor value
@@ -124,6 +137,6 @@ class beego_control{
 		
 		
 };
-
+}
 
 #endif

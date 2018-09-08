@@ -57,6 +57,8 @@ find_package(OpenCV REQUIRED)
    FILES
 #   Message1.msg
 #   Message2.msg
+   vel.msg
+   rpc.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -127,7 +129,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
+#  ${OpenCV_INCLUDE_DIRS}
 
 )
 
@@ -201,10 +203,14 @@ include_directories(
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
-add_executable(beego_control src/main.cpp src/beego_control.cpp src/beego_functions.cpp)
-find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros-robot/catkin_ws/src/beego_control/lib)
-target_link_libraries(beego_control ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${BEEGO_LIBRARIES})
+add_executable(beego_control src/main.cpp src/beego_control.cpp src/beego_functions.cpp )
+find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros/catkin_ws/src/beego_control/lib)
+target_link_libraries(beego_control ${catkin_LIBRARIES} ${BEEGO_LIBRARIES})
 
+add_executable(rotation src/rotation.cpp src/tm_cls/time_class.cpp)
+target_link_libraries(rotation
+   ${catkin_LIBRARIES}
+ )
 #add_executable(test_node src/test.cpp)
 #find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros-robot/catkin_ws/src/beego_control/lib)
 #target_link_libraries(test_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${BEEGO_LIBRARIES})
