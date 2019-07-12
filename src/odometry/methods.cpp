@@ -1,4 +1,4 @@
-﻿#include<beego_control/odometry.h>
+﻿#include<odometry.h>
 
 //subscribe
 void odometryClass::encorder_callback(const beego_control::rpc::ConstPtr& rpcMsg, const beego_control::vel::ConstPtr& velMsg, const std_msgs::Int32::ConstPtr& accMsg){
@@ -30,13 +30,14 @@ void odometryClass::setOdometry(){
     odom_trans.transform.translation.z = 0.0;
 	//--
     odom_trans.header.stamp = current_time;
+	double state_odom_th=0;
     geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(state_odom_th);
     odom_trans.transform.rotation = odom_quat;
 }
 void odometryClass::manage(){
 	setOdometry();
-	publishData();
+	sendTransform();
 }
 void odometryClass::sendTransform(){//データ送信
-    odom_broadcaster.sendTransform(odom_trans)
+    odom_broadcaster.sendTransform(odom_trans);
 }

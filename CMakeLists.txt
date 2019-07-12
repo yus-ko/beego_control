@@ -18,6 +18,7 @@ find_package(catkin REQUIRED
     nav_msgs
     pcl_ros
     geometry_msgs
+    dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -98,10 +99,10 @@ find_package(OpenCV REQUIRED)
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
+generate_dynamic_reconfigure_options(
+  cfg/odometry.cfg
 #   cfg/DynReconf2.cfg
-# )
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -203,8 +204,21 @@ include_directories(
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
+add_executable(${PROJECT_NAME}_tf # manage
+  src/odometry/constructor.cpp
+  src/odometry/methods.cpp
+  src/odometry/debug_main.cpp
+  src/odometry/property.cpp
+)
+
+add_dependencies(${PROJECT_NAME}_tf ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_tf ${PROJECT_NAME}_gencfg)
+target_link_libraries(${PROJECT_NAME}_tf ${catkin_LIBRARIES} ) # estimate 
+
+
 add_executable(beego_control src/main.cpp src/beego_control.cpp src/beego_functions.cpp )
 find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros/catkin_ws/src/beego_control/lib)
+add_dependencies(beego_control beego_control_generate_messages_cpp)
 target_link_libraries(beego_control ${catkin_LIBRARIES} ${BEEGO_LIBRARIES})
 
 add_executable(rotation src/rotation.cpp src/tm_cls/time_class.cpp)
