@@ -7,7 +7,7 @@
  <arg name="d" default="0.3145"/>
  <!--node-->
  <!--init parameter-->
- <node pkg="beego_control" name="beego_control" type="beego_control" >
+ <node pkg="beego_control" name="beego_control_driver" type="beego_control_driver" >
    <!-- init parameter -->
    <param name="posX" value="$(arg posX)"/>
    <param name="posY" value="$(arg posY)"/>
