@@ -1,25 +1,10 @@
 #include<beego_control.h>
 
 beego::control::control()
-	:fet(-1),bt(-1),vol(-1),leftspd(-1),leftrpc(-1),rightspd(-1),rightrpc(-1)
+	:fet(-1),bt(-1),vol(-1),leftspd(-1),leftrpc(-1),rightspd(-1),rightrpc(-1),seq(0)
 {
 	std::cout<<"in beego_control constracter\n";
-	//case 1 : publish each value
-	pub_st=nh_pub.advertise<std_msgs::Int32>("st",1);
-	pub_fet=nh_pub.advertise<std_msgs::Int32>("temperature_fet",1);
-	pub_bt=nh_pub.advertise<std_msgs::Float32>("moter_driver_battery",1);
-	pub_vol=nh_pub.advertise<std_msgs::Int32>("current_voltage",1);
-	//pub_spd=nh_pub.advertise<std_msgs::Float32>("speed",1);
-	pub_spd=nh_pub.advertise<beego_control::vel>("speed",1);
-	//pub_spd_both=nh_pub.advertise<beego_control::vel>("speed_both_wheels",1);
-	//pub_rpc=nh_pub.advertise<std_msgs::Int32>("rcp",1);
-	pub_rpc=nh_pub.advertise<beego_control::rpc>("rcp",1);
-	pub_acc=nh_pub.advertise<geometry_msgs::Point32>("acc",1);
-	pub_gyro=nh_pub.advertise<geometry_msgs::Point32>("gyro",1);
-	pub_smp_t=nh_pub.advertise<std_msgs::Int32>("sample_time",1);
-	
-	//case 2 : publish a value included each value
-	//pub=nh_pub.advertise<beego_control::encorder>("encorder",1);
+	pub=nh_pub.advertise<beego_control::beego_encoder>("encoder",1);
 	//------------------------------------------------------
 	
 	nh_sub.setCallbackQueue(&queue);
@@ -141,15 +126,15 @@ void beego::control::control_robot(void)
 	//gettimeofday(&times, NULL);
 	
 }
-//set encorder values
-void beego::control::set_encorders(void)
+//set encoder values
+void beego::control::set_encoders(void)
 {
 	int st = 0, fet = 0, bt = 0, vol = 0, spd = 0, rpc = 0;
 		
 	MDR8GetStatusLong(hCommMotor, MOTOR_DRIVER_NUMBER, MOTOR_LEFT, &st, &fet, &bt, &vol, &spd, &rpc);
 	printf("%.1fV L:%d ", (float)bt/10.0, rpc);
 	
-	//set encorders
+	//set encoders
 	set_st(st);
 	set_fet(fet);
 	set_bt((float)bt/10.0);
@@ -203,7 +188,7 @@ void beego::control::set_acc_gyro(void)
 	int acc_x=0, acc_y=0, acc_z=0, gyro_x=0, gyro_y=0, gyro_z=0;
 	
 	get_acc_gyro(hCommMotor, MOTOR_DRIVER_NUMBER, &acc_x, &acc_y, &acc_z, &gyro_x, &gyro_y, &gyro_z);
-	//set encorders
+	//set encoders
 	set_acc_x(acc_x);
 	set_acc_y(acc_y);
 	set_acc_z(acc_z);
@@ -237,89 +222,35 @@ void beego::control::set_gyro_z(int& pgyro_z)
 }
 
 
-//publish encorder values
-void beego::control::publish_encorders(void)
+//publish encoder values
+void beego::control::publish_encoders(void)
 {
-	//value of encorder(ros msgs)
-	std_msgs::Int32 msg_st;
-	std_msgs::Int32 msg_fet;//temperature of FET
-	std_msgs::Float32 msg_bt;//Motor Driver Battery Voltage
-	std_msgs::Int32 msg_vol;//Current Voltage
-	//std_msgs::Float32 msg_leftspd;//speed
-	//std_msgs::Float32 msg_rightspd;//speed
-	beego_control::vel msg_spd;//speed
-	//std_msgs::Int32 msg_leftrpc;//RPC(?)
-	//std_msgs::Int32 msg_rightrpc;//RPC(?)
-	beego_control::rpc msg_rpc;
-	std_msgs::Int32 msg_smp_t;
-	
-	//set messages
-	msg_st.data=st;
-	msg_fet.data=fet;
-	msg_bt.data=bt;
-	msg_vol.data=vol;
-	//msg_leftspd.data=leftspd;
-	//msg_leftrpc.data=leftrpc;
-	//msg_rightspd.data=rightspd;
-	//msg_rightrpc.data=rightrpc;
-	
-	msg_spd.l = leftspd;
-	msg_spd.r = rightspd;
-		
-	msg_rpc.l=leftspd;
-	msg_rpc.l=leftrpc;
-	
-	//value of sensor(ros msgs)
-	geometry_msgs::Point32 msg_acc;
-	geometry_msgs::Point32 msg_gyro;
-	//set messages
-	msg_acc.x=acc_x;
-	msg_acc.y=acc_y;
-	msg_acc.z=acc_z;
-	
-	msg_gyro.x=gyro_x;
-	msg_gyro.y=gyro_y;
-	msg_gyro.z=gyro_z;
-	
-	//set sample time
-	msg_smp_t.data = sample_time;
+	//value of encoder(ros msgs)
 	
 	std::cout<<"gyro "<<atan(acc_y/std::sqrt(acc_x*acc_x+acc_z*acc_z))*180/M_PI<<" "<<atan(acc_x/std::sqrt(acc_y*acc_y+acc_z*acc_z))*180/M_PI<<"\n";
-	//received data
-	std::cout<<"received data:"<<rcvdata<<"\n";
-	//
-	std::cout<<"order_msg:"<<order_msg;//<<"\n";
-	//publish messagegs
-	std::cout<<"msg_st:"<<msg_st;//<<"\n";
-	pub_st.publish(msg_st);
-	std::cout<<"msg_fet:"<<msg_fet;//<<"\n";
-	pub_fet.publish(msg_fet);
-	std::cout<<"msg_bt:"<<msg_bt;//<<"\n";
-	pub_bt.publish(msg_bt);
-	std::cout<<"msg_vol:"<<msg_vol;//<<"\n";
-	pub_vol.publish(msg_vol);
-	
-	//std::cout<<"msg_leftspd:"<<msg_leftspd;//<<"\n";
-	//pub_spd.publish(msg_leftspd);
-	//std::cout<<"msg_rightspd:"<<msg_rightspd;//<<"\n";
-	//pub_spd.publish(msg_rightspd);
-	std::cout<<"msg_spd:"<<msg_spd<<"\n";
-	pub_spd.publish(msg_spd);
-	
-	//std::cout<<"msg_leftrpc:"<<msg_leftrpc;//<<"\n";
-	//pub_rpc.publish(msg_leftrpc);
-	//std::cout<<"msg_rightrpc:"<<msg_rightrpc;//<<"\n";
-	//pub_rpc.publish(msg_rightrpc);
-	std::cout<<"msg_rpc:"<<msg_rpc;//<<"\n";
-	pub_rpc.publish(msg_rpc);
-	
-	std::cout<<"msg_acc:"<<msg_acc;//<<"\n";
-	pub_acc.publish(msg_acc);
-	std::cout<<"msg_gyro:"<<msg_gyro;//<<"\n";
-	pub_gyro.publish(msg_gyro);
-	
-	std::cout<<"msg_smp_t"<<msg_smp_t<<"\n";
-	pub_smp_t.publish(msg_smp_t);
+
+	//encoder msgs
+	beego_control::beego_encoder encoder;
+	std_msgs::Header header;
+	header.frame_id = "base_link";
+	header.seq = seq;
+	header.stamp = ros_sample_time;
+	encoder.header =header;
+	encoder.st = st;
+	encoder.fet = fet;
+	encoder.bt = bt;
+	encoder.vol = vol;
+	encoder.gyro.x = gyro_x;
+	encoder.gyro.y = gyro_y;
+	encoder.gyro.z = gyro_z;
+	encoder.acc.x = acc_x;
+	encoder.acc.y = acc_y;
+	encoder.acc.z = acc_z;
+	encoder.rpc.l = leftrpc;
+	encoder.rpc.r = rightrpc;
+	encoder.vel.l = leftspd;
+	encoder.vel.r = rightspd;
+	pub.publish(encoder);
 }
 
 

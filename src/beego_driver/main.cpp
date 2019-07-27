@@ -1,7 +1,7 @@
 #include<beego_control.h>
 
 int main(int argc,char **argv){
-	ros::init(argc,argv,"beego_control");
+	ros::init(argc,argv,"beego_control_driver");
 	
 	beego::control bc;
 	if(bc.setup_robot()==-1)
@@ -14,9 +14,9 @@ int main(int argc,char **argv){
 		bc.sub_order_vel();	
 		bc.convert_ordger_vel();
 		bc.control_robot();
-		bc.set_encorders();
+		bc.set_encoders();
 		bc.set_acc_gyro();
-		bc.publish_encorders();
+		bc.publish_encoders();
 	}
 	
 	return 0;

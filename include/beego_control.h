@@ -22,7 +22,8 @@
 #include<headers.h>
 #include<setting_parameters.h>
 //#include<control_functions.h>
-
+//publish mags
+#include<beego_control/beego_encoder.h>
 namespace beego{
 
 class control{
@@ -38,7 +39,7 @@ class control{
 		//convered oreder message
 		int vel_l;
 		int vel_r;
-		//value of encorder
+		//value of encoder
 		int st;
 		int fet;//temperature of FET
 		float bt;//Motor Driver Battery Voltage
@@ -56,19 +57,11 @@ class control{
 		float gyro_z;
 		//sample time
 		int sample_time;
+		ros::Time ros_sample_time;
+		int seq;
 		//ros 
 		ros::NodeHandle nh_pub,nh_sub;
 		ros::Publisher pub;
-		ros::Publisher pub_st;
-		ros::Publisher pub_fet;
-		ros::Publisher pub_bt;
-		ros::Publisher pub_vol;
-		ros::Publisher pub_spd;
-		ros::Publisher pub_spd_both;
-		ros::Publisher pub_rpc;
-		ros::Publisher pub_acc;
-		ros::Publisher pub_gyro;
-		ros::Publisher pub_smp_t;
 		ros::Subscriber sub;
 		
 		ros::CallbackQueue queue;
@@ -98,9 +91,9 @@ class control{
 		void convert_ordger_vel(void);
 		//control the robot
 		void control_robot(void);
-		//set all encorder values
-		void set_encorders(void);
-		//set each encorder values
+		//set all encoder values
+		void set_encoders(void);
+		//set each encoder values
 		void set_st(int& pst);
 		void set_fet(int& pfet);
 		void set_bt(float pbt);
@@ -109,8 +102,8 @@ class control{
 		void set_leftrpc(int& pspc);
 		void set_rightspd(int& pspd);
 		void set_rightrpc(int& pspc);
-		//publish encorder values
-		void publish_encorders(void);
+		//publish encoder values
+		void publish_encoders(void);
 		//set sensor value
 		void set_acc_gyro(void);
 		//set each sensor values
