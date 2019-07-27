@@ -11,7 +11,8 @@ find_package(catkin REQUIRED
 	roscpp
 	rospy
 	std_msgs
-	message_generation
+  message_generation
+  geometry_msgs
 	cv_bridge
 	image_transport
     tf
@@ -58,6 +59,7 @@ find_package(OpenCV REQUIRED)
    FILES
 #   Message1.msg
 #   Message2.msg
+   beego_encoder.msg
    vel.msg
    rpc.msg
  )
@@ -77,11 +79,12 @@ find_package(OpenCV REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
+ generate_messages(# Or other packages containing msgs
    DEPENDENCIES
-   std_msgs  # Or other packages containing msgs
+   std_msgs
    sensor_msgs
    nav_msgs
+   geometry_msgs
  )
 
 ################################################
@@ -101,6 +104,7 @@ find_package(OpenCV REQUIRED)
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
 generate_dynamic_reconfigure_options(
   cfg/odometry.cfg
+  cfg/teleop.cfg
 #   cfg/DynReconf2.cfg
 )
 
@@ -204,27 +208,43 @@ include_directories(
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
+#add excutable
 add_executable(${PROJECT_NAME}_tf # manage
   src/odometry/constructor.cpp
   src/odometry/methods.cpp
   src/odometry/debug_main.cpp
   src/odometry/property.cpp
 )
-
-add_dependencies(${PROJECT_NAME}_tf ${PROJECT_NAME}_generate_messages_cpp)
-add_dependencies(${PROJECT_NAME}_tf ${PROJECT_NAME}_gencfg)
-target_link_libraries(${PROJECT_NAME}_tf ${catkin_LIBRARIES} ) # estimate 
-
-
-add_executable(beego_control src/main.cpp src/beego_control.cpp src/beego_functions.cpp )
+add_executable(${PROJECT_NAME}_teleop # manage
+  src/teleop/constructor.cpp
+  src/teleop/methods.cpp
+  src/teleop/debug_main.cpp
+  src/teleop/property.cpp
+)
+add_executable(${PROJECT_NAME}_driver 
+  src/beego_driver/main.cpp 
+  src/beego_driver/beego_control.cpp 
+  src/beego_driver/beego_functions.cpp
+)
+#beego library
 find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros/catkin_ws/src/beego_control/lib)
-add_dependencies(beego_control beego_control_generate_messages_cpp)
-target_link_libraries(beego_control ${catkin_LIBRARIES} ${BEEGO_LIBRARIES})
+#aad dependencies
+add_dependencies(${PROJECT_NAME}_driver ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_tf ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_teleop ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_tf ${PROJECT_NAME}_gencfg)
+add_dependencies(${PROJECT_NAME}_teleop ${PROJECT_NAME}_gencfg)
 
-add_executable(rotation src/rotation.cpp src/tm_cls/time_class.cpp)
-target_link_libraries(rotation
-   ${catkin_LIBRARIES}
- )
+
+#target link
+target_link_libraries(${PROJECT_NAME}_driver ${catkin_LIBRARIES} ${BEEGO_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_tf ${catkin_LIBRARIES} ) # tf 
+target_link_libraries(${PROJECT_NAME}_teleop ${catkin_LIBRARIES} ) # teleop 
+
+# add_executable(rotation src/rotation.cpp src/tm_cls/time_class.cpp)
+# target_link_libraries(rotation
+#    ${catkin_LIBRARIES}
+#  )
 #add_executable(test_node src/test.cpp)
 #find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros-robot/catkin_ws/src/beego_control/lib)
 #target_link_libraries(test_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${BEEGO_LIBRARIES})

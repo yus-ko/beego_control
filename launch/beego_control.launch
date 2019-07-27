@@ -1,0 +1,17 @@
+<launch>
+ <!--argument-->
+ <!--init position-->
+ <arg name="posX" default="0"/>
+ <arg name="posY" default="0"/>
+ <arg name="yaw" default="0"/>
+ <arg name="d" default="0.3145"/>
+ <!--node-->
+ <!--init parameter-->
+ <node pkg="beego_control" name="beego_control" type="beego_control" >
+   <!-- init parameter -->
+   <param name="posX" value="$(arg posX)"/>
+   <param name="posY" value="$(arg posY)"/>
+   <param name="yaw" value="$(arg yaw)"/>
+   <param name="d" value="$(arg d)"/>
+ </node>
+</launch>
