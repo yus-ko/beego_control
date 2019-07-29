@@ -21,10 +21,10 @@ void beego::control::sub_order_vel(void)
 {
 	queue.callOne(ros::WallDuration(0.01));
 }
-void beego::control::order_vel_callback(const geometry_msgs::Twist::ConstPtr& msg)
+void beego::control::order_vel_callback(const geometry_msgs::TwistStamped::ConstPtr& msg)
 {
-	order_msg.linear=msg->linear;
-	order_msg.angular=msg->angular;
+	order_msg.linear=msg->twist.linear;
+	order_msg.angular=msg->twist.angular;
 }
 beego::control::~control()
 {

@@ -8,7 +8,7 @@
 #include<cv_bridge/cv_bridge.h>
 #include<sensor_msgs/image_encodings.h>
 //geometry msg
-#include<geometry_msgs/Twist.h>
+#include<geometry_msgs/TwistStamped.h>
 #include<geometry_msgs/Point32.h>
 //std_msgs
 #include"std_msgs/Int32.h"
@@ -84,7 +84,7 @@ class control{
 		~control();
 		//subscribe a order 
 		void sub_order_vel(void);
-		void order_vel_callback(const geometry_msgs::Twist::ConstPtr& msg);
+		void order_vel_callback(const geometry_msgs::TwistStamped::ConstPtr& msg);
 		//setup robot
 		int setup_robot(void);
 		//convert order velocity
