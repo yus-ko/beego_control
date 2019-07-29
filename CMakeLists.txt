@@ -227,7 +227,7 @@ add_executable(${PROJECT_NAME}_driver
   src/beego_driver/beego_functions.cpp
 )
 #beego library
-find_library(BEEGO_LIBRARIES libiroboserial.a PATHS /home/ros/catkin_ws/src/beego_control/lib)
+find_library(BEEGO_LIBRARIES libiroboserial.a PATHS ${HOME}/catkin_ws/src/beego_control/lib)
 #aad dependencies
 add_dependencies(${PROJECT_NAME}_driver ${PROJECT_NAME}_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME}_tf ${PROJECT_NAME}_generate_messages_cpp)
