@@ -84,7 +84,8 @@ class control{
 		~control();
 		//subscribe a order 
 		void sub_order_vel(void);
-		void order_vel_callback(const geometry_msgs::TwistStamped::ConstPtr& msg);
+		void order_vel_callback(const geometry_msgs::Twist::ConstPtr& msg);
+		// void order_vel_callback(const geometry_msgs::TwistStamped::ConstPtr& msg);
 		//setup robot
 		int setup_robot(void);
 		//convert order velocity

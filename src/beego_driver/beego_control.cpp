@@ -21,11 +21,16 @@ void beego::control::sub_order_vel(void)
 {
 	queue.callOne(ros::WallDuration(0.01));
 }
-void beego::control::order_vel_callback(const geometry_msgs::TwistStamped::ConstPtr& msg)
+void beego::control::order_vel_callback(const geometry_msgs::Twist::ConstPtr& msg)
 {
-	order_msg.linear=msg->twist.linear;
-	order_msg.angular=msg->twist.angular;
+	order_msg.linear=msg->linear;
+	order_msg.angular=msg->angular;
 }
+// void beego::control::order_vel_callback(const geometry_msgs::TwistStamped::ConstPtr& msg)
+// {
+// 	order_msg.linear=msg->twist.linear;
+// 	order_msg.angular=msg->twist.angular;
+// }
 beego::control::~control()
 {
 }
@@ -106,8 +111,8 @@ void beego::control::convert_ordger_vel(void)
 	double w=order_msg.angular.z;//角速度
 	double d=0.14;//車幅の半分の長さ
 	//計算式でv,wを車輪速度vel_l,vel_rに変換
-	double vl=v+d*w;//左速度
-	double vr=v-d*w;//右速度
+	double vl=v-d*w;//左速度
+	double vr=v+d*w;//右速度
 	//変換プロセス
 	double a=3.1416*0.082;
 	double b=26.85*45*60/16;
