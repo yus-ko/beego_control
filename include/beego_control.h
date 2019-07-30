@@ -46,6 +46,8 @@ class control{
 		int vol;//Current Voltage
 		float leftspd;//speed
 		float rightspd;
+		float leftodom;//delta wheel odometry 
+		float rightodom;
 		int leftrpc;//RPC(?)
 		int rightrpc;
 		//value of sensor 
@@ -56,7 +58,9 @@ class control{
 		float gyro_y;
 		float gyro_z;
 		//sample time
-		int sample_time;
+		int sample_time_p;
+		int sample_time_c;
+		int sample_time_delta;
 		ros::Time ros_sample_time;
 		int seq;
 		//ros 
@@ -92,7 +96,7 @@ class control{
 		//control the robot
 		void control_robot(void);
 		//set all encoder values
-		void set_encoders(void);
+		bool set_encoders(void);
 		//set each encoder values
 		void set_st(int& pst);
 		void set_fet(int& pfet);
@@ -102,6 +106,7 @@ class control{
 		void set_leftrpc(int& pspc);
 		void set_rightspd(int& pspd);
 		void set_rightrpc(int& pspc);
+		bool set_odom(void);
 		//publish encoder values
 		void publish_encoders(void);
 		//set sensor value

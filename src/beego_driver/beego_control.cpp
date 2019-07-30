@@ -1,7 +1,8 @@
 #include<beego_control.h>
 
 beego::control::control()
-	:fet(-1),bt(-1),vol(-1),leftspd(-1),leftrpc(-1),rightspd(-1),rightrpc(-1),seq(0)
+	:fet(-1),bt(-1),vol(-1),leftspd(-1),leftrpc(-1),rightspd(-1),rightrpc(-1),seq(0),
+	sample_time_p(-1),sample_time_c(-1),sample_time_delta(-1)
 {
 	std::cout<<"in beego_control constracter\n";
 	pub=nh_pub.advertise<beego_control::beego_encoder>("encoder",1);
@@ -127,7 +128,7 @@ void beego::control::control_robot(void)
 	
 }
 //set encoder values
-void beego::control::set_encoders(void)
+bool beego::control::set_encoders(void)
 {
 	int st = 0, fet = 0, bt = 0, vol = 0, spd = 0, rpc = 0;
 		
@@ -144,9 +145,13 @@ void beego::control::set_encoders(void)
 	
 	MDR8GetStatusLong(hCommMotor, MOTOR_DRIVER_NUMBER, MOTOR_RIGHT, &st, &fet, &bt, &vol, &spd, &rpc);
 	printf("R:%d\n", rpc);
-	
 	set_rightspd(spd);
 	set_rightrpc(rpc);
+	if(set_odom()){
+		printf("t:%d, vl:%f,vr:%f,dl:%f,dr:%f\n",sample_time_c, leftspd,rightspd, leftodom, rightodom);
+		return true;
+	}
+	return false;
 	
 }
 void beego::control::set_st(int& pst)
@@ -173,7 +178,6 @@ void beego::control::set_leftrpc(int& prpc)
 {
 	leftrpc=prpc;
 }
-
 void beego::control::set_rightspd(int& pspd)
 {
 	rightspd=pspd*0.00005685591505;
@@ -181,6 +185,18 @@ void beego::control::set_rightspd(int& pspd)
 void beego::control::set_rightrpc(int& prpc)
 {
 	rightrpc=prpc;
+}
+bool beego::control::set_odom(void)
+{
+	if(sample_time_p > 0){
+		sample_time_delta = sample_time_c - sample_time_p;
+		rightodom=rightspd*(float)sample_time_delta / 1000;
+		leftodom=leftspd*(float)sample_time_delta / 1000;
+	}
+	else{
+		return false;
+	}
+	return true;
 }
 //set sensor value
 void beego::control::set_acc_gyro(void)

@@ -192,7 +192,7 @@ int beego::control::MDR8GetStatusLong(HANDLE hComm, int drv, int motor, int *pst
 	sscanf(rcvbuf, "DS %d %d %d %d %d %d %d %d %d %d", &ret_drv, &ret_mt, pst, pfet, pbt,  &ret_cur, pvol, pspd, prpc, &ret_tm);
   }
   //aa=ret_tm;
-  sample_time=ret_tm;
+  sample_time_c=ret_tm;
   ros_sample_time = ros::Time::now();
   return ret;
 }

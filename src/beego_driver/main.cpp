@@ -14,9 +14,10 @@ int main(int argc,char **argv){
 		bc.sub_order_vel();	
 		bc.convert_ordger_vel();
 		bc.control_robot();
-		bc.set_encoders();
-		bc.set_acc_gyro();
-		bc.publish_encoders();
+		if(bc.set_encoders()){
+			bc.set_acc_gyro();
+			bc.publish_encoders();
+		}
 	}
 	
 	return 0;
