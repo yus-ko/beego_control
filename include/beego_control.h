@@ -24,6 +24,8 @@
 //#include<control_functions.h>
 //publish mags
 #include<beego_control/beego_encoder.h>
+
+#include<sensor_msgs/Imu.h>
 namespace beego{
 
 class control{
@@ -65,7 +67,7 @@ class control{
 		int seq;
 		//ros 
 		ros::NodeHandle nh_pub,nh_sub;
-		ros::Publisher pub;
+		ros::Publisher pub,pub_twist_,pub_imu_;
 		ros::Subscriber sub;
 		
 		ros::CallbackQueue queue;

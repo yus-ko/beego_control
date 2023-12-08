@@ -6,6 +6,8 @@ beego::control::control()
 {
 	std::cout<<"in beego_control constracter\n";
 	pub=nh_pub.advertise<beego_control::beego_encoder>("encoder",1);
+	pub_twist_=nh_pub.advertise<geometry_msgs::Twist>("twist",1);
+	pub_imu_=nh_pub.advertise<sensor_msgs::Imu>("imu",1);
 	//------------------------------------------------------
 	
 	nh_sub.setCallbackQueue(&queue);
@@ -271,6 +273,17 @@ void beego::control::publish_encoders(void)
 	encoder.rpc.r = rightrpc;
 	encoder.vel.l = leftspd;
 	encoder.vel.r = rightspd;
+
+	sensor_msgs::Imu imu_msg;
+	imu_msg.header = header;
+	imu_msg.angular_velocity.x = gyro_x;
+	imu_msg.angular_velocity.y = gyro_y;
+	imu_msg.angular_velocity.z = gyro_z;
+	imu_msg.linear_acceleration.x = acc_x;
+	imu_msg.linear_acceleration.y = acc_y;
+	imu_msg.linear_acceleration.z = acc_z;
+
+
 	pub.publish(encoder);
 }
 
